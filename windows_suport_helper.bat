@@ -202,10 +202,8 @@ goto menu
 :pathping_host
 set /p "host=Host/IP to pathping: "
 if not defined host goto menu
-set "SHELL_KIND=cmd"
-for /f "delims=" %%i in ('powershell -NoProfile -ExecutionPolicy Bypass -Command "$proc = Get-CimInstance Win32_Process -Filter \"ProcessId=$PID\"; $pp = Get-CimInstance Win32_Process -Filter \"ProcessId=$($proc.ParentProcessId)\"; $gp = Get-CimInstance Win32_Process -Filter \"ProcessId=$($pp.ParentProcessId)\"; if ($pp.ProcessName -match 'powershell|pwsh') { 'powershell' } elseif ($gp.ProcessName -match 'powershell|pwsh') { 'powershell' } else { 'cmd' }" 2^>nul') do set "SHELL_KIND=%%i"
-
-if /i "%SHELL_KIND%"=="powershell" (
+where powershell >nul 2>&1
+if %errorlevel%==0 (
   call :logrun powershell -NoProfile -ExecutionPolicy Bypass -Command "$p = Start-Process -FilePath 'pathping.exe' -ArgumentList @('%host%') -NoNewWindow -PassThru; if (-not $p) { exit 1 }; if ($p.WaitForExit(90000)) { exit $p.ExitCode } else { Write-Host 'Stopping pathping after 90 seconds...'; try { $p.Kill() } catch {}; exit 1 }"
   powershell -NoProfile -ExecutionPolicy Bypass -Command "$p = Start-Process -FilePath 'pathping.exe' -ArgumentList @('%host%') -NoNewWindow -PassThru; if (-not $p) { exit 1 }; if ($p.WaitForExit(90000)) { exit $p.ExitCode } else { Write-Host 'Stopping pathping after 90 seconds...'; try { $p.Kill() } catch {}; exit 1 }"
 ) else (
