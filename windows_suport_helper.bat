@@ -202,16 +202,18 @@ goto menu
 :pathping_host
 set /p "host=Host/IP to pathping: "
 if not defined host goto menu
-where powershell >nul 2>&1
+set "tmpfile=%temp%\pathping_!random!.log"
+echo Running pathping with a 15-second cap; output will display after completion/timeout...
+call :logrun pathping "%host%"
+start "" /b cmd /c "pathping \"%host%\" >\"%tmpfile%\" 2^>^&1"
+timeout /t 15 /nobreak >nul
+tasklist | find /i "pathping.exe" >nul
 if %errorlevel%==0 (
-  set "_ps_cmd=$job = Start-Job -ScriptBlock { pathping '%host%' }; $done = Wait-Job -Job $job -Timeout 90; if (-not $done) { Write-Host 'Stopping pathping after 90 seconds...'; Stop-Job -Job $job -Force -ErrorAction SilentlyContinue; } Receive-Job -Job $job | Out-Host; Remove-Job -Job $job -Force -ErrorAction SilentlyContinue"
-  call :logrun powershell -NoProfile -ExecutionPolicy Bypass -Command "%_ps_cmd%"
-  powershell -NoProfile -ExecutionPolicy Bypass -Command "%_ps_cmd%"
-) else (
-  echo PowerShell not available; running default pathping without timeout...
-  call :logrun pathping "%host%"
-  pathping "%host%"
+  echo Stopping pathping after 15 seconds...
+  taskkill /im pathping.exe /f >nul 2>&1
 )
+if exist "%tmpfile%" type "%tmpfile%"
+if exist "%tmpfile%" del "%tmpfile%" >nul 2>&1
 pause
 goto menu
 
