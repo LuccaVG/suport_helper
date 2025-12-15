@@ -202,16 +202,8 @@ goto menu
 :pathping_host
 set /p "host=Host/IP to pathping: "
 if not defined host goto menu
-where powershell >nul 2>&1
-if %errorlevel%==0 (
-  set "_ps_cmd=$tmp = Join-Path $env:TEMP ('pathping_' + [guid]::NewGuid() + '.log'); $p = Start-Process -FilePath 'pathping.exe' -ArgumentList @('%host%') -NoNewWindow -RedirectStandardOutput $tmp -RedirectStandardError $tmp -PassThru; if ($p.WaitForExit(15000)) { Get-Content $tmp } else { Write-Host 'Stopping pathping after 15 seconds...'; $p | Stop-Process -Force -ErrorAction SilentlyContinue; Get-Content $tmp }; Remove-Item $tmp -ErrorAction SilentlyContinue"
-  call :logrun powershell -NoProfile -ExecutionPolicy Bypass -Command "%_ps_cmd%"
-  powershell -NoProfile -ExecutionPolicy Bypass -Command "%_ps_cmd%"
-) else (
-  echo PowerShell not available; running default pathping (no timeout)...
-  call :logrun pathping "%host%"
-  pathping "%host%"
-)
+call :logrun pathping "%host%"
+pathping "%host%"
 pause
 goto menu
 
