@@ -202,8 +202,9 @@ goto menu
 :pathping_host
 set /p "host=Host/IP to pathping: "
 if not defined host goto menu
-call :logrun pathping "%host%"
-pathping "%host%"
+:: Faster pathping: no reverse DNS (-n), max 20 hops (-h 20), 5 probes/hop (-q 5), 200ms timeout (-w 200)
+call :logrun pathping -n -h 20 -q 5 -w 200 "%host%"
+pathping -n -h 20 -q 5 -w 200 "%host%"
 pause
 goto menu
 
