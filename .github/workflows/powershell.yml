@@ -21,23 +21,76 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install PSScriptAnalyzer
+      - name: Run PSScriptAnalyzer and write SARIF
         shell: pwsh
         run: |
           Set-StrictMode -Version Latest
-          Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
 
-      - name: Run PSScriptAnalyzer and create SARIF
-        shell: pwsh
-        run: |
-          Set-StrictMode -Version Latest
+          # Ensure module is available (GitHub runners usually already have it)
+          Import-Module PSScriptAnalyzer -ErrorAction Stop
+
           $rules = @(
             'PSAvoidGlobalAliases',
             'PSAvoidUsingConvertToSecureStringWithPlainText'
           )
 
-          Invoke-ScriptAnalyzer -Path . -Recurse -IncludeRule $rules |
-            ConvertTo-Sarif -OutputFile results.sarif
+          $results = Invoke-ScriptAnalyzer -Path . -Recurse -IncludeRule $rules
+
+          # Build a minimal SARIF report that GitHub code scanning can ingest
+          $sarif = @{
+            version = '2.1.0'
+            '$schema' = 'https://json.schemastore.org/sarif-2.1.0.json'
+            runs = @(@{
+              tool = @{
+                driver = @{
+                  name = 'PSScriptAnalyzer'
+                  informationUri = 'https://github.com/PowerShell/PSScriptAnalyzer'
+                  rules = @()
+                }
+              }
+              results = @()
+            })
+          }
+
+          # Map rule metadata once
+          $ruleIndex = @{}
+          foreach ($r in $results) {
+            if (-not $ruleIndex.ContainsKey($r.RuleName)) {
+              $ruleIndex[$r.RuleName] = $true
+              $sarif.runs[0].tool.driver.rules += @{
+                id = $r.RuleName
+                name = $r.RuleName
+                shortDescription = @{ text = $r.Message }
+              }
+            }
+
+            $level = switch ($r.Severity) {
+              'Error' { 'error' }
+              'Warning' { 'warning' }
+              default { 'note' }
+            }
+
+            $uri = ($r.ScriptPath -replace '\\','/')
+            if ([string]::IsNullOrWhiteSpace($uri)) { $uri = '.' }
+
+            $sarif.runs[0].results += @{
+              ruleId = $r.RuleName
+              level  = $level
+              message = @{ text = $r.Message }
+              locations = @(@{
+                physicalLocation = @{
+                  artifactLocation = @{ uri = $uri }
+                  region = @{
+                    startLine = [int]($r.Line)
+                    startColumn = [int]($r.Column)
+                  }
+                }
+              })
+            }
+          }
+
+          $sarifJson = $sarif | ConvertTo-Json -Depth 20
+          Set-Content -Path results.sarif -Value $sarifJson -Encoding utf8
 
       - name: Upload SARIF
         if: always()
