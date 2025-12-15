@@ -202,7 +202,7 @@ goto menu
 :pathping_host
 set /p "host=Host/IP to pathping: "
 if not defined host goto menu
-:: Limit statistics collection to ~30 seconds total: 15 hops * 2 queries * 1s interval = ~30s
+:: Limit statistics collection to ~24 seconds total: 15 hops * 2 queries * 1s interval = ~24s
 call :logrun pathping -h 15 -q 2 -p 1000 "%host%"
 pathping -h 15 -q 2 -p 1000 "%host%"
 pause
