@@ -1,0 +1,91 @@
+name: "Feature request / Solicitação de funcionalidade"
+description: "Suggest an improvement or new menu option for suport_helper. / Sugira uma melhoria ou nova opção de menu para o suport_helper."
+title: "[Feature]: "
+labels:
+  - enhancement
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Share your idea to improve **suport_helper**.
+        Compartilhe sua ideia para melhorar o **suport_helper**.
+
+        Context: This tool supports **Windows (Batch)** and **Linux/macOS (Shell)** and uses menu option numbers **1–24**.
+        Contexto: Esta ferramenta suporta **Windows (Batch)** e **Linux/macOS (Shell)** e usa opções de menu **1–24**.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Problem to solve / Problema a resolver"
+      description: |
+        What problem are you facing?
+        Qual problema você está enfrentando?
+      placeholder: |
+        EN: It's hard to...
+        PT-BR: É difícil...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: "Proposed solution / Solução proposta"
+      description: |
+        Describe the feature or change.
+        Descreva a funcionalidade ou mudança.
+      placeholder: |
+        EN: Add a new menu option that...
+        PT-BR: Adicionar uma nova opção de menu que...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact_area
+    attributes:
+      label: "Area / Área"
+      options:
+        - "Menu option (1–24) / Opção do menu (1–24)"
+        - "Windows (Batch)"
+        - "Linux/macOS (Shell)"
+        - "Logging (support-tool.log) / Logs"
+        - "UX / Messages / Mensagens"
+        - "Documentation / Documentação"
+        - "Other / Outro"
+    validations:
+      required: true
+
+  - type: input
+    id: option_number
+    attributes:
+      label: "Related menu option (1–24) / Opção relacionada (1–24)"
+      description: "If this relates to an existing option. / Se relacionado a uma opção existente."
+      placeholder: "e.g., 3"
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives considered / Alternativas consideradas"
+      placeholder: |
+        EN: I also considered...
+        PT-BR: Também considerei...
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: "Additional context / Contexto adicional"
+      description: |
+        Add examples, screenshots, or links.
+        Adicione exemplos, capturas de tela ou links.
+
+        If pasting logs, redact sensitive data.
+        Se colar logs, masque dados sensíveis.
+      placeholder: |
+        EN: ...
+        PT-BR: ...
+    validations:
+      required: false

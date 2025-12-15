@@ -1,0 +1,139 @@
+name: "Bug report / Relato de bug"
+description: "Report a problem with suport_helper (Batch/Shell menu 1–24). / Relate um problema no suport_helper (menu 1–24 em Batch/Shell)."
+title: "[Bug]: "
+labels:
+  - bug
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report.
+        Obrigado por reservar um tempo para preencher este relato de bug.
+
+        **Important / Importante**
+        - This project runs on **Windows (Batch)** and **Linux/macOS (Shell)**.
+        - Este projeto roda em **Windows (Batch)** e **Linux/macOS (Shell)**.
+        - If attaching logs, **redact sensitive data** (passwords, tokens, IPs, hostnames, usernames, paths).
+        - Ao anexar logs, **remova/mascare dados sensíveis** (senhas, tokens, IPs, nomes de host, usuários, caminhos).
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: "OS / Sistema"
+      description: "Where does the issue happen? / Onde o problema acontece?"
+      options:
+        - "Windows (Batch)"
+        - "Linux (Shell)"
+        - "macOS (Shell)"
+        - "Other / Outro"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: "suport_helper version / versão"
+      description: "Commit/Tag if known. / Commit/Tag se souber."
+      placeholder: "e.g., v1.2.3 or commit SHA"
+    validations:
+      required: false
+
+  - type: input
+    id: menu_option
+    attributes:
+      label: "Menu option number (1–24) / Número da opção (1–24)"
+      description: "Which menu option triggers the bug? / Qual opção do menu dispara o bug?"
+      placeholder: "e.g., 7"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "What happened? / O que aconteceu?"
+      description: |
+        Describe the bug and what you expected.
+        Descreva o bug e o que você esperava.
+      placeholder: |
+        EN: When I choose option 12, the script...
+        PT-BR: Quando escolho a opção 12, o script...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: "Steps to reproduce / Passos para reproduzir"
+      description: |
+        Provide a minimal set of steps.
+        For command lines, include the exact commands.
+
+        Forneça um conjunto mínimo de passos.
+        Para linhas de comando, inclua os comandos exatos.
+      placeholder: |
+        1) EN: Open suport_helper
+           PT-BR: Abra o suport_helper
+        2) EN: Choose option X
+           PT-BR: Escolha a opção X
+        3) EN: ...
+           PT-BR: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Expected behavior / Comportamento esperado"
+      placeholder: |
+        EN: It should...
+        PT-BR: Deveria...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: "Actual behavior / Comportamento atual"
+      placeholder: |
+        EN: It actually...
+        PT-BR: Na prática...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Logs (support-tool.log) / Logs (support-tool.log)"
+      description: |
+        Attach relevant excerpts from `support-tool.log` or paste them here.
+        **Redact** secrets and personal data.
+
+        Anexe trechos relevantes do `support-tool.log` ou cole aqui.
+        **Masque** segredos e dados pessoais.
+      render: shell
+      placeholder: |
+        EN: Paste logs here (redacted)
+        PT-BR: Cole logs aqui (com dados mascarados)
+    validations:
+      required: false
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: "Screenshots / Capturas de tela"
+      description: "If applicable. / Se aplicável."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: "Checklist / Lista de verificação"
+      options:
+        - label: "I confirmed this happens on the latest version / Confirmei que acontece na versão mais recente"
+          required: false
+        - label: "I searched existing issues / Procurei issues existentes"
+          required: false
+        - label: "I removed/obscured sensitive data from logs / Removi/mascarei dados sensíveis dos logs"
+          required: false
