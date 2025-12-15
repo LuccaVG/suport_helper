@@ -4,8 +4,8 @@ Bilingual README (English / Português‑BR) documenting Windows Batch and Linux
 
 Note: The Linux version is currently under active development and has a different feature set than the Windows version.
 
-Repo languages: Shell (~54.3%), Batchfile (~45.7%).  
-Idiomas do repositório: Shell (~54,3%), Batch (~45,7%).
+Repo languages: Shell (~44%), Batchfile (~56%).  
+Idiomas do repositório: Shell (~44%), Batch (~56%).
 
 Use the index below to jump to your language:
 - English: [Full Documentation (English)](#full-documentation-english)
