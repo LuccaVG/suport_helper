@@ -202,10 +202,10 @@ goto menu
 :pathping_host
 set /p "host=Host/IP to pathping: "
 if not defined host goto menu
-set "tmpfile=%temp%\pathping_!random!.log"
+set "tmpfile=%temp%\pathping_output.log"
 echo Running pathping with a 20-second cap; output will display after completion/timeout...
 call :logrun pathping "%host%"
-start "" /b cmd /c "pathping \"%host%\" >\"%tmpfile%\" 2^>^&1"
+start "" /b cmd /c "pathping \"%host%\" ^>\"%tmpfile%\" 2^>^&1"
 timeout /t 20 /nobreak >nul
 tasklist | find /i "pathping.exe" >nul
 if %errorlevel%==0 (
