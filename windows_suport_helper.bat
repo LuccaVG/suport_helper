@@ -204,21 +204,13 @@ set /p "host=Host/IP to pathping: "
 if not defined host goto menu
 where powershell >nul 2>&1
 if %errorlevel%==0 (
-  call :logrun powershell -NoProfile -ExecutionPolicy Bypass -Command "$p = Start-Process -FilePath 'pathping.exe' -ArgumentList @('%host%') -NoNewWindow -PassThru; if (-not $p) { exit 1 }; if ($p.WaitForExit(90000)) { exit $p.ExitCode } else { Write-Host 'Stopping pathping after 90 seconds...'; try { $p.Kill() } catch {}; exit 1 }"
-  powershell -NoProfile -ExecutionPolicy Bypass -Command "$p = Start-Process -FilePath 'pathping.exe' -ArgumentList @('%host%') -NoNewWindow -PassThru; if (-not $p) { exit 1 }; if ($p.WaitForExit(90000)) { exit $p.ExitCode } else { Write-Host 'Stopping pathping after 90 seconds...'; try { $p.Kill() } catch {}; exit 1 }"
+  set "_ps_cmd=$p = Start-Process -FilePath 'pathping.exe' -ArgumentList @('%host%') -NoNewWindow -PassThru; if (-not $p) { exit 1 }; $done = $p.WaitForExit(90000); if ($done) { exit $p.ExitCode } else { Write-Host 'Stopping pathping after 90 seconds...'; Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue; exit 1 }"
+  call :logrun powershell -NoProfile -ExecutionPolicy Bypass -Command "%_ps_cmd%"
+  powershell -NoProfile -ExecutionPolicy Bypass -Command "%_ps_cmd%"
 ) else (
-  set "tmpfile=%temp%\pathping_!random!.log"
-  echo Running pathping (cmd) with 90-second cap; output will appear after completion/timeout...
+  echo PowerShell not available; running default pathping without timeout...
   call :logrun pathping "%host%"
-  start "" /b cmd /c "pathping \"%host%\" >\"%tmpfile%\" 2^>^&1"
-  timeout /t 90 /nobreak >nul
-  tasklist | find /i "pathping.exe" >nul
-  if %errorlevel%==0 (
-    echo Stopping pathping after 90 seconds...
-    taskkill /im pathping.exe /f >nul 2>&1
-  )
-  if exist "%tmpfile%" type "%tmpfile%"
-  if exist "%tmpfile%" del "%tmpfile%" >nul 2>&1
+  pathping "%host%"
 )
 pause
 goto menu
