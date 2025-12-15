@@ -12,23 +12,29 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  psscriptanalyzer:
+    name: PSScriptAnalyzer
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write
-      actions: read
-    name: PSScriptAnalyzer
-    runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run PSScriptAnalyzer
-        uses: microsoft/psscriptanalyzer-action@6b2948b1944407914a58661c49941824d149734f
-        with:
-          path: .
-          recurse: true
-          includeRule: PSAvoidGlobalAliases,PSAvoidUsingConvertToSecureStringWithPlainText
-          output: results.sarif
+      - name: Install PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Set-StrictMode -Version Latest
+          Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
+
+      - name: Run PSScriptAnalyzer (SARIF)
+        shell: pwsh
+        run: |
+          Set-StrictMode -Version Latest
+          $rules = @('PSAvoidGlobalAliases','PSAvoidUsingConvertToSecureStringWithPlainText')
+          Invoke-ScriptAnalyzer -Path . -Recurse -IncludeRule $rules -ReportSummary `
+            | ConvertTo-Sarif -OutputFile results.sarif
 
       - name: Upload SARIF results file
         if: always()
