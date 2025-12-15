@@ -204,7 +204,7 @@ set /p "host=Host/IP to pathping: "
 if not defined host goto menu
 where powershell >nul 2>&1
 if %errorlevel%==0 (
-  set "_ps_cmd=$p = Start-Process -FilePath 'pathping.exe' -ArgumentList @('%host%') -NoNewWindow -PassThru; if (-not $p) { exit 1 }; $done = $p.WaitForExit(90000); if ($done) { exit $p.ExitCode } else { Write-Host 'Stopping pathping after 90 seconds...'; Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue; exit 1 }"
+  set "_ps_cmd=$job = Start-Job -ScriptBlock { pathping '%host%' }; $done = Wait-Job -Job $job -Timeout 90; if (-not $done) { Write-Host 'Stopping pathping after 90 seconds...'; Stop-Job -Job $job -Force -ErrorAction SilentlyContinue; } Receive-Job -Job $job | Out-Host; Remove-Job -Job $job -Force -ErrorAction SilentlyContinue"
   call :logrun powershell -NoProfile -ExecutionPolicy Bypass -Command "%_ps_cmd%"
   powershell -NoProfile -ExecutionPolicy Bypass -Command "%_ps_cmd%"
 ) else (
