@@ -1,0 +1,69 @@
+name: "Documentation request / Solicitação de documentação"
+description: "Request improvements to README or usage docs for suport_helper. / Solicite melhorias no README ou docs de uso do suport_helper."
+title: "[Docs]: "
+labels:
+  - documentation
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us improve the documentation for **suport_helper**.
+        Ajude-nos a melhorar a documentação do **suport_helper**.
+
+        Tip: If your question is general, consider using **Discussions**.
+        Dica: Se sua dúvida for geral, considere usar **Discussions**.
+
+  - type: dropdown
+    id: doc_area
+    attributes:
+      label: "Documentation area / Área de documentação"
+      options:
+        - "README"
+        - "Installation / Instalação"
+        - "Usage / Uso (menu 1–24)"
+        - "Windows (Batch) specifics / Específico do Windows (Batch)"
+        - "Linux/macOS (Shell) specifics / Específico do Linux/macOS (Shell)"
+        - "Troubleshooting / Solução de problemas"
+        - "Logging (support-tool.log) / Logs"
+        - "Other / Outro"
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: "What is unclear today? / O que está confuso hoje?"
+      placeholder: |
+        EN: The README section about option 9 doesn't explain...
+        PT-BR: A seção do README sobre a opção 9 não explica...
+    validations:
+      required: true
+
+  - type: textarea
+    id: requested
+    attributes:
+      label: "What should be added/changed? / O que deve ser adicionado/mudado?"
+      placeholder: |
+        EN: Please add an example command for...
+        PT-BR: Por favor adicione um exemplo de comando para...
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: "Screenshots or examples / Capturas de tela ou exemplos"
+      description: "If applicable. / Se aplicável."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: "Checklist / Lista de verificação"
+      options:
+        - label: "I checked the README and existing issues / Verifiquei o README e issues existentes"
+          required: false
+        - label: "This is not a bug report / Isto não é um relato de bug"
+          required: false
