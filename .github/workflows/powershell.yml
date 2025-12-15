@@ -6,14 +6,13 @@ on:
   pull_request:
     branches: [ "main" ]
   schedule:
-    - cron: '21 11 * * 6'
+    - cron: "21 11 * * 6"
 
 permissions:
   contents: read
 
 jobs:
   psscriptanalyzer:
-    name: PSScriptAnalyzer
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -28,15 +27,19 @@ jobs:
           Set-StrictMode -Version Latest
           Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
 
-      - name: Run PSScriptAnalyzer (SARIF)
+      - name: Run PSScriptAnalyzer and create SARIF
         shell: pwsh
         run: |
           Set-StrictMode -Version Latest
-          $rules = @('PSAvoidGlobalAliases','PSAvoidUsingConvertToSecureStringWithPlainText')
-          Invoke-ScriptAnalyzer -Path . -Recurse -IncludeRule $rules -ReportSummary `
-            | ConvertTo-Sarif -OutputFile results.sarif
+          $rules = @(
+            'PSAvoidGlobalAliases',
+            'PSAvoidUsingConvertToSecureStringWithPlainText'
+          )
 
-      - name: Upload SARIF results file
+          Invoke-ScriptAnalyzer -Path . -Recurse -IncludeRule $rules |
+            ConvertTo-Sarif -OutputFile results.sarif
+
+      - name: Upload SARIF
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
