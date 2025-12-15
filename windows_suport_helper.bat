@@ -131,8 +131,8 @@ goto menu
 
 :hwinfo
 echo Collecting hardware inventory (may take a moment)...
-call :logrun powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-CimInstance Win32_ComputerSystem,Win32_Processor,Win32_PhysicalMemory,Win32_DiskDrive,Win32_VideoController,Win32_NetworkAdapterConfiguration ^| Format-List *"
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-CimInstance Win32_ComputerSystem,Win32_Processor,Win32_PhysicalMemory,Win32_DiskDrive,Win32_VideoController,Win32_NetworkAdapterConfiguration | Format-List *"
+call :logrun powershell -NoProfile -ExecutionPolicy Bypass -Command "$classes = 'Win32_ComputerSystem','Win32_Processor','Win32_PhysicalMemory','Win32_DiskDrive','Win32_VideoController','Win32_NetworkAdapterConfiguration'; foreach ($c in $classes) { Write-Host ('=== ' + $c + ' ==='); Get-CimInstance -ClassName $c -ErrorAction SilentlyContinue ^| Format-List * }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$classes = 'Win32_ComputerSystem','Win32_Processor','Win32_PhysicalMemory','Win32_DiskDrive','Win32_VideoController','Win32_NetworkAdapterConfiguration'; foreach ($c in $classes) { Write-Host ('=== ' + $c + ' ==='); Get-CimInstance -ClassName $c -ErrorAction SilentlyContinue | Format-List * }"
 pause
 goto menu
 
