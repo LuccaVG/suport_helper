@@ -142,13 +142,35 @@ EOF
     9)
       echo "Hardware inventory (may need sudo)..."
       if cmd_exists lshw; then
-        logrun sudo lshw -short
-        sudo lshw -short
+        echo "--- System / CPU / Memory / Disk / Network / Display ---"
+        if cmd_exists sudo; then
+          logrun sudo lshw -short -class system -class processor -class memory -class disk -class storage -class network -class display
+          sudo lshw -short -class system -class processor -class memory -class disk -class storage -class network -class display
+        else
+          logrun lshw -short -class system -class processor -class memory -class disk -class storage -class network -class display
+          lshw -short -class system -class processor -class memory -class disk -class storage -class network -class display
+        fi
       else
-        if cmd_exists lscpu; then logrun lscpu; lscpu; fi
-        if cmd_exists lspci; then logrun lspci; lspci; fi
-        if cmd_exists lsusb; then logrun lsusb; lsusb; fi
-        if cmd_exists lsblk; then logrun lsblk; lsblk; fi
+        if cmd_exists lscpu; then
+          echo "--- CPU (summary) ---"
+          logrun "lscpu | grep (summary)"
+          lscpu | grep -E "^(Architecture|Vendor ID|Model name|CPU\(s\)|Thread\(s\) per core|Core\(s\) per socket|Socket\(s\)|CPU MHz|CPU max MHz|Hypervisor vendor|Virtualization type):" || true
+        fi
+        if cmd_exists lsblk; then
+          echo "--- Disks (lsblk) ---"
+          logrun lsblk
+          lsblk
+        fi
+        if cmd_exists lspci; then
+          echo "--- PCI devices (filtered) ---"
+          logrun "lspci | grep (filtered)"
+          lspci | grep -Ei "vga|3d|display|ethernet|network|wireless|wi-?fi|audio|usb|sata|nvme|raid|scsi|storage" || true
+        fi
+        if cmd_exists lsusb; then
+          echo "--- USB devices (filtered) ---"
+          logrun "lsusb | grep (filtered)"
+          lsusb | grep -vi "Linux Foundation" || true
+        fi
       fi
       pause
       ;;
