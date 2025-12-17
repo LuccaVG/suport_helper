@@ -33,7 +33,7 @@ while true; do
 10) Disk usage (df -h)
 11) Memory/swap (free -h)
 12) Top CPU procs (ps sorted)
-13) Kill process by PID
+13) Process tools (list/kill by PID)
 14) Services (systemctl/service)
 15) Route table (ip route)
 16) ARP/neighbor table (ip neigh)
@@ -190,10 +190,29 @@ EOF
       pause
       ;;
     13)
-      read -rp "PID to kill: " pid
-      [[ -z "${pid:-}" ]] && continue
-      logrun sudo kill -9 "$pid"
-      sudo kill -9 "$pid"
+      echo "1) List processes (sorted by PID)"
+      echo "2) Kill a process by PID"
+      read -rp "Select (1-2): " subopt
+      case "$subopt" in
+        1)
+          logrun "ps -eo pid,user,%cpu,%mem,cmd --sort=pid"
+          ps -eo pid,user,%cpu,%mem,cmd --sort=pid
+          ;;
+        2)
+          read -rp "PID to kill: " pid
+          [[ -z "${pid:-}" ]] && continue
+          if cmd_exists sudo; then
+            logrun sudo kill -9 "$pid"
+            sudo kill -9 "$pid"
+          else
+            logrun kill -9 "$pid"
+            kill -9 "$pid"
+          fi
+          ;;
+        *)
+          echo "Invalid choice."
+          ;;
+      esac
       pause
       ;;
     14)
@@ -220,11 +239,23 @@ EOF
       read -rp "Host/IP to test (mtr/tracepath): " host
       [[ -z "${host:-}" ]] && continue
       if cmd_exists mtr; then
-        logrun sudo mtr -rw "$host"
-        sudo mtr -rw "$host"
-      else
+        if cmd_exists sudo; then
+          logrun sudo mtr -rw "$host"
+          if sudo mtr -rw "$host"; then :; else true; fi
+        else
+          logrun mtr -rw "$host"
+          if mtr -rw "$host"; then :; else true; fi
+        fi
+      elif cmd_exists tracepath; then
         logrun tracepath "$host"
-        tracepath "$host"
+        if tracepath "$host"; then :; else true; fi
+      elif cmd_exists traceroute; then
+        logrun traceroute "$host"
+        if traceroute "$host"; then :; else true; fi
+      else
+        echo "No mtr/tracepath/traceroute installed. Falling back to ping."
+        logrun ping -c 10 "$host"
+        if ping -c 10 "$host"; then :; else true; fi
       fi
       pause
       ;;
