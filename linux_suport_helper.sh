@@ -281,8 +281,35 @@ EOF
       elif cmd_exists systemd-resolve; then
         logrun systemd-resolve --statistics
         systemd-resolve --statistics
+      elif cmd_exists nscd; then
+        echo "Showing nscd cache stats..."
+        logrun nscd -g
+        if nscd -g; then :; else true; fi
+      elif cmd_exists unbound-control; then
+        echo "Showing unbound stats (if control socket is configured)..."
+        if cmd_exists sudo; then
+          logrun sudo unbound-control stats_noreset
+          if sudo unbound-control stats_noreset; then :; else true; fi
+        else
+          logrun unbound-control stats_noreset
+          if unbound-control stats_noreset; then :; else true; fi
+        fi
+      elif cmd_exists rndc; then
+        echo "Showing named (BIND) status (if configured)..."
+        if cmd_exists sudo; then
+          logrun sudo rndc status
+          if sudo rndc status; then :; else true; fi
+        else
+          logrun rndc status
+          if rndc status; then :; else true; fi
+        fi
       else
-        echo "No resolvectl/systemd-resolve available for DNS cache stats."
+        echo "No supported DNS cache stats tool detected (resolvectl/systemd-resolve/nscd/unbound-control/rndc)."
+        if cmd_exists systemctl; then
+          echo "--- Running DNS-related services (if any) ---"
+          logrun "systemctl list-units --type=service --state=running | grep (dns services)"
+          systemctl list-units --type=service --state=running --no-pager 2>/dev/null | grep -Ei "systemd-resolved|nscd|dnsmasq|unbound|named" || true
+        fi
       fi
       pause
       ;;
