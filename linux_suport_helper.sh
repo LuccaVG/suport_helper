@@ -250,8 +250,23 @@ EOF
         logrun tracepath "$host"
         if tracepath "$host"; then :; else true; fi
       elif cmd_exists traceroute; then
-        logrun traceroute "$host"
-        if traceroute "$host"; then :; else true; fi
+        if cmd_exists sudo; then
+          logrun sudo traceroute -I "$host"
+          if sudo traceroute -I "$host"; then
+            :
+          else
+            logrun traceroute "$host"
+            if traceroute "$host"; then :; else true; fi
+          fi
+        else
+          logrun traceroute -I "$host"
+          if traceroute -I "$host"; then
+            :
+          else
+            logrun traceroute "$host"
+            if traceroute "$host"; then :; else true; fi
+          fi
+        fi
       else
         echo "No mtr/tracepath/traceroute installed. Falling back to ping."
         logrun ping -c 10 "$host"
