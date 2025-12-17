@@ -59,10 +59,17 @@ EOF
       echo "Flushing DNS cache (best effort)..."
       if cmd_exists systemd-resolve; then
         logrun sudo systemd-resolve --flush-caches
-        sudo systemd-resolve --flush-caches
+        if sudo systemd-resolve --flush-caches; then :; else true; fi
       elif cmd_exists resolvectl; then
         logrun sudo resolvectl flush-caches
-        sudo resolvectl flush-caches
+        if sudo resolvectl flush-caches; then
+          :
+        else
+          echo "resolvectl is installed but resolver service is not connected (systemd-resolved may be stopped/not used)."
+          if cmd_exists systemctl; then
+            systemctl is-active --quiet systemd-resolved 2>/dev/null || true
+          fi
+        fi
       elif cmd_exists rndc; then
         logrun sudo rndc flush
         sudo rndc flush
@@ -277,10 +284,20 @@ EOF
     18)
       if cmd_exists resolvectl; then
         logrun resolvectl statistics
-        resolvectl statistics
+        if resolvectl statistics; then
+          :
+        else
+          echo "resolvectl is installed but failed to talk to the resolver service (common when systemd-resolved isn't running/used)."
+          if cmd_exists systemctl; then
+            echo "--- systemd-resolved status (if present) ---"
+            logrun "systemctl status systemd-resolved --no-pager"
+            systemctl status systemd-resolved --no-pager 2>/dev/null || true
+          fi
+          echo "Falling back to other DNS cache tools (if installed)..."
+        fi
       elif cmd_exists systemd-resolve; then
         logrun systemd-resolve --statistics
-        systemd-resolve --statistics
+        if systemd-resolve --statistics; then :; else true; fi
       elif cmd_exists nscd; then
         echo "Showing nscd cache stats..."
         logrun nscd -g
