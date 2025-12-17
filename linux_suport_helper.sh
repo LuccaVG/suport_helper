@@ -85,8 +85,23 @@ EOF
       read -rp "Host/IP to trace: " host
       [[ -z "${host:-}" ]] && continue
       if cmd_exists traceroute; then
-        logrun traceroute "$host"
-        traceroute "$host"
+        if cmd_exists sudo; then
+          logrun sudo traceroute -I "$host"
+          if sudo traceroute -I "$host"; then
+            :
+          else
+            logrun traceroute "$host"
+            traceroute "$host"
+          fi
+        else
+          logrun traceroute -I "$host"
+          if traceroute -I "$host"; then
+            :
+          else
+            logrun traceroute "$host"
+            traceroute "$host"
+          fi
+        fi
       else
         logrun tracepath "$host"
         tracepath "$host"
