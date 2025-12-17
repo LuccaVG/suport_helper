@@ -1,9 +1,11 @@
 # suport_helper / Tech Support Quick Commands
 
-Bilingual README (English / Português‑BR) documenting Windows Batch and Unix Shell menus with quick diagnostic/remediation actions.
+Bilingual README (English / Português‑BR) documenting Windows Batch and Linux Shell scripts with quick diagnostic/remediation actions.
 
-Repo languages: Shell (~54.3%), Batchfile (~45.7%).  
-Idiomas do repositório: Shell (~54,3%), Batch (~45,7%).
+Note: The Linux version is currently under active development and has a different feature set than the Windows version.
+
+Repo languages: Shell (~44%), Batchfile (~56%).  
+Idiomas do repositório: Shell (~44%), Batch (~56%).
 
 Use the index below to jump to your language:
 - English: [Full Documentation (English)](#full-documentation-english)
@@ -17,10 +19,10 @@ Use the index below to jump to your language:
 - [Overview](#overview)
 - [Usage](#usage)
   - [Windows (Batch)](#windows-batch)
-  - [Linux/macOS (Shell)](#linuxmacos-shell)
+  - [Linux (Shell)](#linux-shell)
 - [Menus](#menus)
   - [Windows Menu](#windows-menu)
-  - [Unix Menu (Linux/macOS)](#unix-menu-linuxmacos)
+  - [Linux Menu](#linux-menu)
 - [Inputs & Prompts](#inputs--prompts)
 - [Logging](#logging)
 - [Requirements](#requirements)
@@ -35,15 +37,14 @@ Use the index below to jump to your language:
 
 - Cross‑platform support:
   - Windows: Batch script with numeric menu (1–24 + Q) for common support commands.
-  - Linux/macOS: Shell script with numeric menu (1–24 + Q) offering equivalent diagnostics.
+  - Linux: Shell script with numeric menu (1–24 + Q) offering diagnostic commands. Note: The Linux version is under active development with a different feature set.
 - Logging:
   - Windows: logs every executed command to `support-tool.log` in the script directory.
-  - Unix: logs to `support-tool.log` (same directory) using `tee`/redirections.
+  - Linux: logs to `linux_suport_helper.log` in the script directory.
 - Interactive prompts:
   - Host inputs where needed (ping, traceroute/tracert, pathping, nslookup/dig).
-  - Safety prompts for long/elevated operations (SFC/DISM on Windows; integrity checks on Unix).
+  - Safety prompts for long/elevated operations (SFC/DISM on Windows).
 - PowerShell on Windows for richer hardware inventory and hotfix/event listing.
-- Cross‑platform alternatives for hardware and updates on Unix (lshw, lspci, lsusb, dmidecode, journalctl, system_profiler).
 
 ---
 
@@ -55,12 +56,14 @@ Use the index below to jump to your language:
 3. Enter an option number (1–24) or `Q` to quit.
 4. Outputs are displayed on screen; commands and timestamps are appended to `support-tool.log`.
 
-#### Linux/macOS (Shell)
+#### Linux (Shell)
+Note: The Linux version is under active development.
+
 1. Open Terminal. For operations that need elevated privileges, use `sudo` when prompted.
-2. Make the script executable: `chmod +x support_helper.sh`.
-3. Run the script: `./support_helper.sh`.
+2. Make the script executable: `chmod +x linux_suport_helper.sh`.
+3. Run the script: `./linux_suport_helper.sh`.
 4. Enter an option number (1–24) or `Q` to quit.
-5. Output is shown on screen and logged to `support-tool.log` in the script directory.
+5. Output is shown on screen and logged to `linux_suport_helper.log` in the script directory.
 
 ---
 
@@ -93,48 +96,47 @@ Use the index below to jump to your language:
 24) Recent System event log (20 entries) — PowerShell `Get-EventLog -LogName System -Newest 20`  
 Q) Quit
 
-#### Unix Menu (Linux/macOS)
-Cross‑platform equivalents. Some commands vary by OS/distro.
+#### Linux Menu
+Note: The Linux version is under active development and currently implements the following features:
 
-1) IP config (detailed) — Linux: `ip a` or `ifconfig -a` (if installed); macOS: `ifconfig`  
-2) Flush DNS — Linux (systemd): `sudo systemd-resolve --flush-caches`; Ubuntu legacy: `sudo /etc/init.d/dns-clean restart`; with NSCD: `sudo service nscd restart`. macOS: `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder`  
+1) IP config (ip addr) — `ip a`  
+2) Flush DNS cache (best effort) — Various methods depending on system configuration (systemd-resolve, resolvectl, rndc, nscd)  
 3) Ping host — `ping -c 6 <host>`  
-4) Traceroute to host — `traceroute <host>` (use `sudo` if needed); alternative: Linux `tracepath <host>`  
-5) DNS lookup — `dig <host>` or `nslookup <host>`  
-6) Netstat active connections (all) — `ss -tulpn` or `netstat -tulpn` (if installed)  
-7) Listening ports — `ss -ltnp` (TCP) and `ss -lunp` (UDP); or `lsof -Pi -sTCP:LISTEN`  
-8) System info — Linux: `uname -a && lsb_release -a` (if available) or `cat /etc/os-release`; macOS: `uname -a && sw_vers`  
-9) Hardware inventory — Linux: `sudo lshw -short` or `lspci`, `lsusb`, `lsblk`, `dmidecode`; macOS: `system_profiler SPHardwareDataType`  
-10) Filesystem/integrity check — Linux: `sudo debsums` (Debian‑based) or `rpm -Va` (RPM‑based); macOS: `diskutil verifyVolume /`  
-11) System repair (package/db health) — Linux (Debian‑based): `sudo apt -f install && sudo dpkg --configure -a`; Linux (RPM‑based): `sudo dnf check && sudo dnf distro-sync`; macOS: `softwareupdate -ia --verbose`  
-12) Process tools — list: `ps aux` or `top/htop`; kill by PID: `kill -9 <pid>` (use with caution)  
-13) Driver/modules — Linux: `lsmod` + `modinfo <module>`; macOS: `kextstat`  
-14) Services — Linux (systemd): `systemctl list-units --type=service --all`; macOS: `launchctl list`  
-15) Route table — `ip route` (Linux) or `netstat -nr` (macOS)  
-16) ARP cache — `ip neigh` (Linux) or `arp -a` (macOS)  
-17) Pathping equivalent — Linux: `mtr -rw <host>` (requires `mtr`); macOS: `mtr <host>` or `traceroute -q 1 -w 2 <host>`  
-18) Display DNS cache — Linux: limited via `sudo systemd-resolve --statistics` or inspect NSCD cache; macOS: `sudo killall -INFO mDNSResponder` then check system logs  
-19) Wi‑Fi profiles — Linux: `nmcli connection show` or `sudo grep -r SSID /etc/NetworkManager/system-connections`; macOS: `networksetup -listpreferredwirelessnetworks <device>`  
-20) Wi‑Fi drivers/capabilities — Linux: `iw dev`, `iw list`, `nmcli device wifi list`; macOS: `system_profiler SPAirPortDataType`  
-21) Firewall status — Linux: `sudo ufw status` or `sudo firewall-cmd --state` (RPM‑based); macOS: `sudo /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate`  
-22) Network shares — Linux: `showmount -e <server>` (NFS), `smbclient -L //<server>` (SMB); macOS: `mount` or `smbutil view //<server>`  
-23) Installed updates — Linux: `grep "upgrade " /var/log/dpkg.log` (Debian‑based), `rpm -qa --last` (RPM‑based); macOS: `softwareupdate --history`  
-24) Recent system events (20) — Linux: `journalctl -p 0..4 -n 20 --system`; macOS: `log show --style syslog --last 1d | grep -E "kernel|error|fault" | tail -n 20`  
+4) Traceroute / tracepath — `traceroute <host>` or `tracepath <host>` (if traceroute not available)  
+5) DNS lookup (dig/nslookup/host) — `dig <host>`, `nslookup <host>`, or `host <host>` (depending on availability)  
+6) Listening sockets — `ss -tulpn`  
+7) Active TCP connections — `ss -tan`  
+8) System info (kernel/distro) — `uname -a` and `lsb_release -a` (if available)  
+9) Hardware inventory — `sudo lshw -short` or combination of `lscpu`, `lspci`, `lsusb`, `lsblk`  
+10) Disk usage — `df -h`  
+11) Memory/swap — `free -h`  
+12) Top CPU processes — `ps -eo pid,cmd,%cpu,%mem --sort=-%cpu | head -20`  
+13) Kill process by PID — `sudo kill -9 <pid>`  
+14) Services — `systemctl list-units --type=service --all` or `service --status-all`  
+15) Route table — `ip route`  
+16) ARP/neighbor table — `ip neigh`  
+17) Path quality — `sudo mtr -rw <host>` or `tracepath <host>`  
+18) DNS cache stats — `resolvectl statistics` or `systemd-resolve --statistics`  
+19) Firewall status — Various commands depending on system: `sudo ufw status verbose`, `sudo firewall-cmd --state`, `sudo iptables -L -n -v`, or `sudo nft list ruleset`  
+20) Network mounts/shares — `mount | column -t`  
+21) Installed packages (summary) — `dpkg -l | head -40` or `rpm -qa | head -40`  
+22) Recent errors — `journalctl -p err -n 50`  
+23) Syslog/messages tail — `tail -n 100 /var/log/syslog` or `tail -n 100 /var/log/messages`  
+24) Time sync status — `timedatectl` or `date`  
 Q) Quit — `q` or `Ctrl+C`
 
 ---
 
 ### Inputs & Prompts
-- Hostname/IP prompts for network tests (ping, traceroute/mtr, pathping, nslookup/dig).
-- Confirmation prompts for long/elevated operations (Windows: SFC/DISM; Linux/macOS: package repairs, filesystem checks).
-- Wi‑Fi device selection on macOS may require interface name (e.g., `en0`).
+- Hostname/IP prompts for network tests (ping, traceroute, nslookup/dig).
+- Confirmation prompts for long/elevated operations (Windows: SFC/DISM).
+- PID input for process termination.
 
 ---
 
 ### Logging
-- File: `support-tool.log` in the script directory (Windows and Unix).
-- Format: `[date time] <command>` per execution, plus selected output excerpts.
-- On Unix, the script uses `tee` or `>>` to append outputs; on Windows, batch appends via `>>` and PowerShell cmdlets.
+- Windows: File `support-tool.log` in the script directory. Format: `[date time] <command>` per execution.
+- Linux: File `linux_suport_helper.log` in the script directory. Format: `[date time] <command>` per execution.
 
 ---
 
@@ -143,20 +145,17 @@ Q) Quit — `q` or `Ctrl+C`
   - PowerShell available (default on modern Windows) for hardware/hotfix/event queries.
   - Admin rights recommended for SFC/DISM and some service/firewall operations.
 - Linux:
-  - Recommended packages: `traceroute`, `mtr`, `lshw`, `lsof`, `iw`, `nmcli` (NetworkManager), `lsb-release`, systemd tools (`journalctl`, `systemd-resolve`).
+  - Note: The Linux version is under active development.
+  - Recommended packages vary by distribution and feature used: `traceroute`, `mtr`, `lshw`, `lsof`, `iw`, `nmcli`, `lsb-release`, systemd tools (`journalctl`, `systemd-resolve` or `resolvectl`).
   - Use `sudo` for certain inventory and service commands.
-- macOS:
-  - Uses built‑in `system_profiler`, `networksetup`, and `log`.
-  - `mtr` and `dig` may require installation via Homebrew (`brew install mtr bind`).
 
 ---
 
 ### Notes
 - Windows SFC/DISM require elevated Command Prompt.
-- Unix: some commands vary by distro or need installation; the script attempts to detect availability and suggest alternatives.
+- Linux: The Linux version is under active development. Some commands vary by distribution or need installation; the script attempts to detect availability and suggest alternatives.
 - Network tests prompt for hostnames/IPs where applicable.
 - PowerShell is invoked with `-NoProfile -ExecutionPolicy Bypass` for inventory, hotfix, and event queries (Windows).
-- Unix logging avoids sensitive data; review logs before sharing.
 
 ---
 
@@ -166,21 +165,22 @@ Use at your own risk. Review commands before running in production environments.
 ---
 
 ### Files
-- Windows Batch script — `support_helper.bat`
-- Unix Shell script — `support_helper.sh`
-- Shared log file — `support-tool.log`
+- Windows Batch script — `windows_suport_helper.bat`
+- Linux Shell script (under development) — `linux_suport_helper.sh`
+- Windows log file — `support-tool.log`
+- Linux log file — `linux_suport_helper.log`
 
 ---
 
 ### Quick Reference Maps
-- Tracert (Windows) ≈ traceroute/tracepath (Unix)
-- Pathping (Windows) ≈ mtr (Unix)
-- Netstat (Windows) ≈ ss/netstat/lsof (Unix)
-- Systeminfo (Windows) ≈ uname + os‑release/lsb_release + system_profiler (Unix/macOS)
-- Driverquery (Windows) ≈ lsmod/modinfo/kextstat (Unix/macOS)
-- Services (sc) (Windows) ≈ systemctl/launchctl (Unix/macOS)
-- Firewall (netsh) (Windows) ≈ ufw/firewalld/socketfilterfw (Unix/macOS)
-- Wi‑Fi profiles/drivers (netsh) ≈ nmcli/iw/system_profiler/networksetup (Unix/macOS)
+Windows vs Linux equivalents (note: Linux version under development):
+- Tracert (Windows) ≈ traceroute/tracepath (Linux)
+- Pathping (Windows) ≈ mtr (Linux)
+- Netstat (Windows) ≈ ss (Linux)
+- Systeminfo (Windows) ≈ uname + lsb_release (Linux)
+- Driverquery (Windows) ≈ lsmod/modinfo (Linux)
+- Services (sc) (Windows) ≈ systemctl (Linux)
+- Firewall (netsh) (Windows) ≈ ufw/firewalld/iptables/nft (Linux)
 
 ---
 
@@ -190,10 +190,10 @@ Use at your own risk. Review commands before running in production environments.
 - [Visão geral](#visão-geral)
 - [Como usar](#como-usar)
   - [Windows (Batch)](#windows-batch-1)
-  - [Linux/macOS (Shell)](#linuxmacos-shell-1)
+  - [Linux (Shell)](#linux-shell-1)
 - [Menus](#menus-1)
   - [Menu do Windows](#menu-do-windows)
-  - [Menu Unix (Linux/macOS)](#menu-unix-linuxmacos)
+  - [Menu Linux](#menu-linux)
 - [Entradas & Perguntas](#entradas--perguntas)
 - [Registro](#registro)
 - [Requisitos](#requisitos)
@@ -207,15 +207,14 @@ Use at your own risk. Review commands before running in production environments.
 ### Visão geral
 - Suporte multiplataforma:
   - Windows: script Batch com menu numérico (1–24 + Q) para comandos comuns de suporte.
-  - Linux/macOS: script Shell com menu numérico (1–24 + Q) oferecendo diagnósticos equivalentes.
+  - Linux: script Shell com menu numérico (1–24 + Q) oferecendo comandos de diagnóstico. Nota: A versão Linux está em desenvolvimento ativo com um conjunto de funcionalidades diferente.
 - Registro:
   - Windows: registra cada comando executado em `support-tool.log` no diretório do script.
-  - Unix: registra em `support-tool.log` (mesmo diretório) usando `tee`/redirecionamentos.
+  - Linux: registra em `linux_suport_helper.log` no diretório do script.
 - Prompts interativos:
   - Entradas de host quando necessário (ping, traceroute/tracert, pathping, nslookup/dig).
-  - Confirmações para operações longas/elevadas (SFC/DISM no Windows; verificações de integridade no Unix).
+  - Confirmações para operações longas/elevadas (SFC/DISM no Windows).
 - PowerShell no Windows para inventário de hardware e listagem de hotfix/eventos.
-- Alternativas multiplataforma para hardware e atualizações no Unix (lshw, lspci, lsusb, dmidecode, journalctl, system_profiler).
 
 ---
 
@@ -227,12 +226,14 @@ Use at your own risk. Review commands before running in production environments.
 3. Digite o número da opção (1–24) ou `Q` para sair.
 4. As saídas aparecem na tela; comandos e horários são gravados em `support-tool.log`.
 
-#### Linux/macOS (Shell)
+#### Linux (Shell)
+Nota: A versão Linux está em desenvolvimento ativo.
+
 1. Abra o Terminal. Para operações que exigem privilégios elevados, use `sudo` quando solicitado.
-2. Torne o script executável: `chmod +x support_helper.sh`.
-3. Execute o script: `./support_helper.sh`.
+2. Torne o script executável: `chmod +x linux_suport_helper.sh`.
+3. Execute o script: `./linux_suport_helper.sh`.
 4. Digite o número da opção (1–24) ou `Q` para sair.
-5. A saída é exibida na tela e registrada em `support-tool.log` no diretório do script.
+5. A saída é exibida na tela e registrada em `linux_suport_helper.log` no diretório do script.
 
 ---
 
@@ -265,48 +266,47 @@ Use at your own risk. Review commands before running in production environments.
 24) Log de eventos do Sistema (20 mais recentes) — PowerShell `Get-EventLog -LogName System -Newest 20`  
 Q) Sair
 
-#### Menu Unix (Linux/macOS)
-Equivalentes multiplataforma. Alguns comandos variam por SO/distro.
+#### Menu Linux
+Nota: A versão Linux está em desenvolvimento ativo e atualmente implementa as seguintes funcionalidades:
 
-1) Configuração de IP (detalhado) — Linux: `ip a` ou `ifconfig -a` (se instalado); macOS: `ifconfig`  
-2) Limpar DNS — Linux (systemd): `sudo systemd-resolve --flush-caches`; Ubuntu legado: `sudo /etc/init.d/dns-clean restart`; com NSCD: `sudo service nscd restart`. macOS: `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder`  
+1) Configuração de IP (ip addr) — `ip a`  
+2) Limpar cache DNS (melhor esforço) — Vários métodos dependendo da configuração do sistema (systemd-resolve, resolvectl, rndc, nscd)  
 3) Ping em host — `ping -c 6 <host>`  
-4) Traceroute para host — `traceroute <host>` (use `sudo` se necessário); alternativa Linux: `tracepath <host>`  
-5) Consulta DNS — `dig <host>` ou `nslookup <host>`  
-6) Conexões ativas (netstat) — `ss -tulpn` ou `netstat -tulpn` (se instalado)  
-7) Portas em escuta — `ss -ltnp` (TCP) e `ss -lunp` (UDP); ou `lsof -Pi -sTCP:LISTEN`  
-8) Info do sistema — Linux: `uname -a && lsb_release -a` (se disponível) ou `cat /etc/os-release`; macOS: `uname -a && sw_vers`  
-9) Inventário de hardware — Linux: `sudo lshw -short` ou `lspci`, `lsusb`, `lsblk`, `dmidecode`; macOS: `system_profiler SPHardwareDataType`  
-10) Verificação de sistema de arquivos/integridade — Linux: `sudo debsums` (Debian) ou `rpm -Va` (RPM); macOS: `diskutil verifyVolume /`  
-11) Reparos de sistema (saúde de pacotes/banco) — Linux (Debian): `sudo apt -f install && sudo dpkg --configure -a`; Linux (RPM): `sudo dnf check && sudo dnf distro-sync`; macOS: `softwareupdate -ia --verbose`  
-12) Processos — listar: `ps aux` ou `top/htop`; matar por PID: `kill -9 <pid>` (usar com cautela)  
-13) Drivers/módulos — Linux: `lsmod` + `modinfo <module>`; macOS: `kextstat`  
-14) Serviços — Linux (systemd): `systemctl list-units --type=service --all`; macOS: `launchctl list`  
-15) Tabela de rotas — `ip route` (Linux) ou `netstat -nr` (macOS)  
-16) Cache ARP — `ip neigh` (Linux) ou `arp -a` (macOS)  
-17) Equivalente ao Pathping — Linux: `mtr -rw <host>` (requer `mtr`); macOS: `mtr <host>` ou `traceroute -q 1 -w 2 <host>`  
-18) Exibir cache DNS — Linux: limitado via `sudo systemd-resolve --statistics` ou inspecionar cache do NSCD; macOS: `sudo killall -INFO mDNSResponder` e verificar logs do sistema  
-19) Perfis Wi‑Fi — Linux: `nmcli connection show` ou `sudo grep -r SSID /etc/NetworkManager/system-connections`; macOS: `networksetup -listpreferredwirelessnetworks <device>`  
-20) Drivers/capacidades Wi‑Fi — Linux: `iw dev`, `iw list`, `nmcli device wifi list`; macOS: `system_profiler SPAirPortDataType`  
-21) Status do firewall — Linux: `sudo ufw status` ou `sudo firewall-cmd --state` (RPM); macOS: `sudo /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate`  
-22) Compartilhamentos de rede — Linux: `showmount -e <servidor>` (NFS), `smbclient -L //<servidor>` (SMB); macOS: `mount` ou `smbutil view //<servidor>`  
-23) Atualizações instaladas — Linux: `grep "upgrade " /var/log/dpkg.log` (Debian), `rpm -qa --last` (RPM); macOS: `softwareupdate --history`  
-24) Eventos de sistema recentes (20) — Linux: `journalctl -p 0..4 -n 20 --system`; macOS: `log show --style syslog --last 1d | grep -E "kernel|error|fault" | tail -n 20`  
+4) Traceroute / tracepath — `traceroute <host>` ou `tracepath <host>` (se traceroute não disponível)  
+5) Consulta DNS (dig/nslookup/host) — `dig <host>`, `nslookup <host>`, ou `host <host>` (dependendo da disponibilidade)  
+6) Sockets em escuta — `ss -tulpn`  
+7) Conexões TCP ativas — `ss -tan`  
+8) Info do sistema (kernel/distro) — `uname -a` e `lsb_release -a` (se disponível)  
+9) Inventário de hardware — `sudo lshw -short` ou combinação de `lscpu`, `lspci`, `lsusb`, `lsblk`  
+10) Uso de disco — `df -h`  
+11) Memória/swap — `free -h`  
+12) Processos com maior uso de CPU — `ps -eo pid,cmd,%cpu,%mem --sort=-%cpu | head -20`  
+13) Matar processo por PID — `sudo kill -9 <pid>`  
+14) Serviços — `systemctl list-units --type=service --all` ou `service --status-all`  
+15) Tabela de rotas — `ip route`  
+16) Tabela ARP/vizinhos — `ip neigh`  
+17) Qualidade do caminho — `sudo mtr -rw <host>` ou `tracepath <host>`  
+18) Estatísticas de cache DNS — `resolvectl statistics` ou `systemd-resolve --statistics`  
+19) Status do firewall — Vários comandos dependendo do sistema: `sudo ufw status verbose`, `sudo firewall-cmd --state`, `sudo iptables -L -n -v`, ou `sudo nft list ruleset`  
+20) Montagens/compartilhamentos de rede — `mount | column -t`  
+21) Pacotes instalados (resumo) — `dpkg -l | head -40` ou `rpm -qa | head -40`  
+22) Erros recentes — `journalctl -p err -n 50`  
+23) Syslog/messages (últimas linhas) — `tail -n 100 /var/log/syslog` ou `tail -n 100 /var/log/messages`  
+24) Status de sincronização de tempo — `timedatectl` ou `date`  
 Q) Sair — `q` ou `Ctrl+C`
 
 ---
 
 ### Entradas & Perguntas
-- Solicitação de hostname/IP para testes de rede (ping, traceroute/mtr, pathping, nslookup/dig).
-- Confirmação para operações longas/elevadas (Windows: SFC/DISM; Linux/macOS: reparos de pacotes, verificação de sistema de arquivos).
-- Em macOS, pode ser necessário informar o nome da interface Wi‑Fi (ex.: `en0`).
+- Solicitação de hostname/IP para testes de rede (ping, traceroute, nslookup/dig).
+- Confirmação para operações longas/elevadas (Windows: SFC/DISM).
+- Entrada de PID para terminação de processo.
 
 ---
 
 ### Registro
-- Arquivo: `support-tool.log` no diretório do script (Windows e Unix).
-- Formato: `[data hora] <comando>` por execução, com trechos selecionados de saída.
-- Em Unix, o script usa `tee` ou `>>` para anexar saídas; no Windows, o batch utiliza `>>` e cmdlets do PowerShell.
+- Windows: Arquivo `support-tool.log` no diretório do script. Formato: `[data hora] <comando>` por execução.
+- Linux: Arquivo `linux_suport_helper.log` no diretório do script. Formato: `[data hora] <comando>` por execução.
 
 ---
 
@@ -315,20 +315,17 @@ Q) Sair — `q` ou `Ctrl+C`
   - PowerShell disponível (padrão no Windows moderno) para consultas de hardware/hotfix/eventos.
   - Direitos de administrador recomendados para SFC/DISM e algumas operações de serviço/firewall.
 - Linux:
-  - Pacotes recomendados: `traceroute`, `mtr`, `lshw`, `lsof`, `iw`, `nmcli` (NetworkManager), `lsb-release`, ferramentas do `systemd` (`journalctl`, `systemd-resolve`).
+  - Nota: A versão Linux está em desenvolvimento ativo.
+  - Pacotes recomendados variam por distribuição e funcionalidade usada: `traceroute`, `mtr`, `lshw`, `lsof`, `iw`, `nmcli`, `lsb-release`, ferramentas do `systemd` (`journalctl`, `systemd-resolve` ou `resolvectl`).
   - Use `sudo` para certos inventários e comandos de serviço.
-- macOS:
-  - Usa `system_profiler`, `networksetup` e `log` embutidos.
-  - `mtr` e `dig` podem exigir instalação via Homebrew (`brew install mtr bind`).
 
 ---
 
 ### Observações
 - Windows: SFC/DISM exigem Prompt de Comando elevado.
-- Unix: alguns comandos variam por distro ou precisam de instalação; o script tenta detectar disponibilidade e sugerir alternativas.
+- Linux: A versão Linux está em desenvolvimento ativo. Alguns comandos variam por distribuição ou precisam de instalação; o script tenta detectar disponibilidade e sugerir alternativas.
 - Testes de rede solicitam hostnames/IPs quando aplicável.
 - PowerShell é chamado com `-NoProfile -ExecutionPolicy Bypass` para inventário, hotfixes e eventos (Windows).
-- Logs em Unix evitam dados sensíveis; revise antes de compartilhar.
 
 ---
 
@@ -338,20 +335,21 @@ Use por sua conta e risco. Revise os comandos antes de usar em ambientes de prod
 ---
 
 ### Arquivos
-- Script Batch para Windows — `support_helper.bat`
-- Script Shell para Unix — `support_helper.sh`
-- Arquivo de log compartilhado — `support-tool.log`
+- Script Batch para Windows — `windows_suport_helper.bat`
+- Script Shell para Linux (em desenvolvimento) — `linux_suport_helper.sh`
+- Arquivo de log do Windows — `support-tool.log`
+- Arquivo de log do Linux — `linux_suport_helper.log`
 
 ---
 
 ### Mapas de Referência Rápida
-- Tracert (Windows) ≈ traceroute/tracepath (Unix)
-- Pathping (Windows) ≈ mtr (Unix)
-- Netstat (Windows) ≈ ss/netstat/lsof (Unix)
-- Systeminfo (Windows) ≈ uname + os‑release/lsb_release + system_profiler (Unix/macOS)
-- Driverquery (Windows) ≈ lsmod/modinfo/kextstat (Unix/macOS)
-- Serviços (sc) (Windows) ≈ systemctl/launchctl (Unix/macOS)
-- Firewall (netsh) (Windows) ≈ ufw/firewalld/socketfilterfw (Unix/macOS)
-- Perfis/drivers Wi‑Fi (netsh) ≈ nmcli/iw/system_profiler/networksetup (Unix/macOS)
+Equivalentes Windows vs Linux (nota: versão Linux em desenvolvimento):
+- Tracert (Windows) ≈ traceroute/tracepath (Linux)
+- Pathping (Windows) ≈ mtr (Linux)
+- Netstat (Windows) ≈ ss (Linux)
+- Systeminfo (Windows) ≈ uname + lsb_release (Linux)
+- Driverquery (Windows) ≈ lsmod/modinfo (Linux)
+- Serviços (sc) (Windows) ≈ systemctl (Linux)
+- Firewall (netsh) (Windows) ≈ ufw/firewalld/iptables/nft (Linux)
 
 ---

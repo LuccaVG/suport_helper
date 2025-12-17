@@ -1,0 +1,56 @@
+name: Codacy Security Scan
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    - cron: "31 12 * * 2"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  codacy-security-scan:
+    name: Codacy Security Scan
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+    steps:
+      - name: Checkout code (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Helpful for shell tooling resolution and consistent behavior
+      - name: Ensure shell tooling is available
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+
+      # Run Codacy Analysis and produce SARIF.
+      # Notes:
+      # - `project-token` is usually required unless your Codacy project allows tokenless analysis.
+      # - `tool` is set to shellcheck to explicitly focus on bash/shell scanning.
+      # - If you prefer Codacy to auto-run multiple tools, remove `tool: shellcheck`.
+      - name: Run Codacy Analysis CLI (Shell/Bash)
+        uses: codacy/codacy-analysis-cli-action@d840f886c4bd4edc059706d09c6a1586111c540b
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          verbose: true
+          format: sarif
+          output: results.sarif
+          gh-code-scanning-compat: true
+          max-allowed-issues: 2147483647
+          tool: shellcheck
+
+      - name: Upload SARIF results file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
