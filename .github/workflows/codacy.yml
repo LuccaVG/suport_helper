@@ -32,7 +32,8 @@ jobs:
       - name: Ensure shell tooling is available
         run: |
           sudo apt-get update
-          sudo apt-get install -y shellcheck
+          sudo apt-get install -y shellcheck 
+          sudo apt-get install --only-upgrade docker-ce docker-ce-cli containerd.io
 
       # Run Codacy Analysis and produce SARIF.
       # Notes:
